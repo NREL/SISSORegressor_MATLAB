@@ -177,6 +177,9 @@ classdef SissoRegressor
             if nColumns < (obj.nNonzeroCoefs * obj.nFeaturesPerSisIter)
                 error(error_str)
             end
+        end
+        
+        function dispL0steps(obj)
             % Calculate and display the number of L0 optimizations during
             % the SO step of SISSO:
             nL0Steps = 0;
@@ -195,7 +198,6 @@ classdef SissoRegressor
                 end
             end
             fprintf("Total # of L0 optimizations: %d\n", nL0Steps)
-            disp(" ");
         end
         
         function obj = setMeansAndScales(obj, x)
