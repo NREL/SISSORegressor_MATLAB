@@ -75,7 +75,7 @@ classdef SissoRegressor
             % x: matrix of input features for each response, [Nsamples, Nfeatures]
             % y: vector of response data, [Nsample,1]
             checkParams(obj,size(x,2));
-            obj.unselectedIndicesSis = 1:length(x);
+            obj.unselectedIndicesSis = 1:size(x,2);
             % Standardize input features:
             obj = setMeansAndScales(obj, x);
             x = standardizeData(obj, x);
