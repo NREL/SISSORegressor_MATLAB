@@ -192,7 +192,7 @@ classdef SissoRegressor
                 end
             else
                 for dim = 2:obj.nNonzeroCoefs
-                    L0CalcsThisIter = prod(obj.nFeaturesPerSisIter * dim);
+                    L0CalcsThisIter = prod(obj.nFeaturesPerSisIter ^ dim);
                     nL0Steps = nL0Steps + L0CalcsThisIter;
                     fprintf("L0 optimizations for %dD model: %d\n", dim, L0CalcsThisIter);
                 end
@@ -305,7 +305,7 @@ classdef SissoRegressor
             if obj.allL0Combinations
                 combinations = combnk([listOfSisIndices{:}], length(listOfSisIndices));
             else
-                combinations = cartesianProduct(listOfSisIndices);
+                combinations = obj.cartesianProduct(listOfSisIndices);
             end
             
             for i = 1:size(combinations,1)
@@ -378,9 +378,10 @@ classdef SissoRegressor
                 end
             end
         end
-        
+    end
+    methods(Static)
         function x = cartesianProduct(sets)
-            %x = CARTESIANPRODUCT(sets)
+            %x = CARTESIANPRODUCT(varargin)
             % Modified from https://www.mathworks.com/matlabcentral/fileexchange/5475-cartprod-cartesian-product-of-multiple-sets
             % This is to copy the behavior of itertools.product in Python.
             
@@ -411,6 +412,7 @@ classdef SissoRegressor
             %   File Exchange site.
             
             numSets = length(sets);
+            sizeThisSet = zeros(numSets, 1);
             for i = 1:numSets
                 % Check each cell entry, sort it if its okay.
                 thisSet = sort(sets{i});
@@ -430,15 +432,15 @@ classdef SissoRegressor
             for i = 1:size(x,1)
                 % Envision imaginary n-d array with dimension "sizeThisSet" ...
                 % = length(varargin{1}) x length(varargin{2}) x ...
-                ixVect = ind2subVect(sizeThisSet,i);
+                idxVect = SissoRegressor.ind2subVect(sizeThisSet,i);
                 for j = 1:numSets
-                    x(i,j) = sets{j}(ixVect(j));
+                    x(i,j) = sets{j}(idxVect(j));
                 end
             end
         end
         
-        function X = ind2subVect(siz, ndx)
-            %X = IND2SUBVECT(siz, ndx)
+        function X = ind2subVect(siz, idx)
+            %X = IND2SUBVECT(siz, idx)
             % From https://www.mathworks.com/matlabcentral/fileexchange/5476-ind2subvect-multiple-subscript-vector-from-linear-index
             
             %IND2SUBVECT Multiple subscripts from linear index.
@@ -471,13 +473,16 @@ classdef SissoRegressor
             %   to return a vector of N indices rather than returning N individual
             %   variables.)
             
+            if iscolumn(siz)
+                siz = siz';
+            end
             % All MathWorks' code from IND2SUB, except as noted:
             n = length(siz);
             k = [1 cumprod(siz(1:end-1))];
-            ndx = ndx - 1;
+            idx = idx - 1;
             for i = n:-1:1
-                X(i) = floor(ndx/k(i))+1;      % replaced "varargout{i}" with "X(i)"
-                ndx = rem(ndx,k(i));
+                X(i) = floor(idx/k(i))+1;      % replaced "varargout{i}" with "X(i)"
+                idx = rem(idx,k(i));
             end
         end
     end
